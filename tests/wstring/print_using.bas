@@ -396,10 +396,14 @@ SUITE( fbc_tests.wstring_.print_using )
 		test_sng( fmt, -inf, "-1.#INF" )
 
 		test_sng( fmt,  nan, "+1.#NAN" )
+		'' riscv / loongarch: float->double conversion yields the canonical
+		'' (positive) NaN, so the sign of -nan is lost
+		#if not ( defined( __FB_RISCV__ ) or defined( __FB_LOONGARCH__ ) ) or ( ENABLE_CHECK_BUGS <> 0 )
 		test_sng( fmt, -nan, "-1.#NAN" )
+		#endif
 
-		'' arm targets only return NAN instead of IND? and different signs??
-		#if not defined( __FB_ARM__ ) or ( ENABLE_CHECK_BUGS <> 0 )
+		'' arm / riscv / loongarch targets only return NAN instead of IND? and different signs??
+		#if not ( defined( __FB_ARM__ ) or defined( __FB_RISCV__ ) or defined( __FB_LOONGARCH__ ) ) or ( ENABLE_CHECK_BUGS <> 0 )
 
 		test_sng( fmt, ind, "-1.#IND" )
 

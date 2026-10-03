@@ -22,6 +22,8 @@ all:
 	$(call test,-print target -target freebsd-x86)
 	$(call test,-print target -target freebsd-x86_64)
 	$(call test,-print target -target linux-aarch64)
+	$(call test,-print target -target linux-riscv64)
+	$(call test,-print target -target linux-loongarch64)
 	$(call test,-print target -target linux-arm)
 	$(call test,-print target -target linux-x86)
 	$(call test,-print target -target linux-x86_64)

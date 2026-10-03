@@ -63,6 +63,10 @@
 	#define HOST_64BIT
 #elif defined __aarch64__
 	#define HOST_64BIT
+#elif defined __riscv && __riscv_xlen == 64
+	#define HOST_64BIT
+#elif defined __loongarch64
+	#define HOST_64BIT
 #endif
 
 #ifdef HOST_MINGW
