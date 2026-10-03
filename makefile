@@ -441,7 +441,7 @@ else
   #    lib/freebasic/<fbtarget>/
   libdirname := lib
   ifdef ENABLE_LIB64
-    ifneq ($(filter x86_64 aarch64,$(TARGET_ARCH)),)
+    ifneq ($(filter x86_64 aarch64 riscv64 loongarch64,$(TARGET_ARCH)),)
       libdirname := lib64
     endif
   endif
@@ -1336,6 +1336,8 @@ bootstrap-dist:
 	mkdir -p bootstrap/win64
 	mkdir -p bootstrap/linux-arm
 	mkdir -p bootstrap/linux-aarch64
+	mkdir -p bootstrap/linux-riscv64
+	mkdir -p bootstrap/linux-loongarch64
 	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target dos                 && mv src/compiler/*.asm bootstrap/dos
 	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target freebsd-x86         && mv src/compiler/*.asm bootstrap/freebsd-x86
 	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target freebsd-x86_64      && mv src/compiler/*.c   bootstrap/freebsd-x86_64
@@ -1351,6 +1353,8 @@ bootstrap-dist:
 	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target win64               && mv src/compiler/*.c   bootstrap/win64
 	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target linux-arm           && mv src/compiler/*.c   bootstrap/linux-arm
 	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target linux-aarch64       && mv src/compiler/*.c   bootstrap/linux-aarch64
+	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target linux-riscv64       && mv src/compiler/*.c   bootstrap/linux-riscv64
+	./$(FBC_EXE) src/compiler/*.bas -m fbc -i inc -e -r -v -target linux-loongarch64   && mv src/compiler/*.c   bootstrap/linux-loongarch64
 
 	# Ensure to have LFs regardless of host system (LFs will probably work
 	# on DOS/Win32, but CRLFs could cause issues on Linux)
@@ -1369,6 +1373,8 @@ bootstrap-dist:
 	dos2unix bootstrap/win64/*
 	dos2unix bootstrap/linux-arm/*
 	dos2unix bootstrap/linux-aarch64/*
+	dos2unix bootstrap/linux-riscv64/*
+	dos2unix bootstrap/linux-loongarch64/*
 
 	# Package FB sources (similar to our "gitdist" command), and add the bootstrap/ directory
 	# Making a .tar.xz should be good enough for now.

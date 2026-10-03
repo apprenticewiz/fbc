@@ -14,10 +14,10 @@ SUITE( fbc_tests.numbers.infnan )
 
 		#macro checkD( d, x )
 			'' The sign bit for NaN results is unspecified by IEEE754,
-			'' and x86 and ARM differ in its selection.
+			'' and x86 and ARM / RISC-V differ in its selection.
 			'' Appears to be ditto for emscripten
 			'' Little-endian assumption casting double ptr to ulongint ptr
-			#if defined( __FB_ARM__ ) or defined( __FB_JS__ )
+			#if defined( __FB_ARM__ ) or defined( __FB_RISCV__ ) or defined( __FB_LOONGARCH__ ) or defined( __FB_JS__ )
 				#if( (x = NEGNAND) or (x = POSNAND) )
 					CU_ASSERT( ((*cptr( ulongint ptr, @d )) and SGNMASK) = POSNAND )
 				#else
@@ -122,10 +122,10 @@ SUITE( fbc_tests.numbers.infnan )
 
 		#macro checkF( f, x )
 			'' The sign bit for NaN results is unspecified by IEEE754,
-			'' and x86 and ARM differ in its selection.
+			'' and x86 and ARM / RISC-V differ in its selection.
 			'' Appears to be ditto for emscripten
 			'' Little-endian assumption casting double ptr to ulongint ptr
-			#if defined( __FB_ARM__ ) or defined( __FB_JS__ )
+			#if defined( __FB_ARM__ ) or defined( __FB_RISCV__ ) or defined( __FB_LOONGARCH__ ) or defined( __FB_JS__ )
 				#if( (x = NEGNANF) or (x = POSNANF) )
 					CU_ASSERT( ((*cptr( ulong ptr, @f )) and SGNMASK) = POSNANF )
 				#else

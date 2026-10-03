@@ -240,7 +240,9 @@ dim shared as FBCPUFAMILYINFO cpufamilyinfo(0 to FB_CPUFAMILY__COUNT-1) = _
 	(@"powerpc"    , FB_DEFAULT_CPUTYPE_PPC    ), _
 	(@"powerpc64"  , FB_DEFAULT_CPUTYPE_PPC64  ), _
 	(@"powerpc64le", FB_DEFAULT_CPUTYPE_PPC64LE), _
-	(@"asmjs"      , FB_DEFAULT_CPUTYPE_ASMJS  )  _
+	(@"asmjs"      , FB_DEFAULT_CPUTYPE_ASMJS  ), _
+	(@"riscv64"     , FB_DEFAULT_CPUTYPE_RISCV64), _
+	(@"loongarch64" , FB_DEFAULT_CPUTYPE_LOONGARCH64)  _
 }
 
 type FBCPUTYPEINFO
@@ -273,7 +275,9 @@ dim shared as FBCPUTYPEINFO cputypeinfo(0 to FB_CPUTYPE__COUNT-1) = _
 	( NULL       , @"powerpc"      , FB_CPUFAMILY_PPC    , 32, TRUE  ), _ '' FB_CPUTYPE_PPC
 	( NULL       , @"powerpc64"    , FB_CPUFAMILY_PPC64  , 64, TRUE  ), _ '' FB_CPUTYPE_PPC64
 	( NULL       , @"powerpc64le"  , FB_CPUFAMILY_PPC64LE, 64, FALSE ), _ '' FB_CPUTYPE_PPC64LE
-	( NULL       , @"asmjs"        , FB_CPUFAMILY_ASMJS  , 32, FALSE )  _ '' FB_CPUTYPE_ASMJS
+	( NULL       , @"asmjs"        , FB_CPUFAMILY_ASMJS  , 32, FALSE ), _ '' FB_CPUTYPE_ASMJS
+	( @"rv64gc"  , @"riscv64"      , FB_CPUFAMILY_RISCV64    , 64, FALSE ), _ '' FB_CPUTYPE_RISCV64
+	( NULL       , @"loongarch64"  , FB_CPUFAMILY_LOONGARCH64, 64, FALSE )  _ '' FB_CPUTYPE_LOONGARCH64
 }
 
 ''::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -919,6 +923,8 @@ private function hGetTargetId _
 	''    linux-x86_64
 	''    linux-arm
 	''    linux-aarch64
+	''    linux-riscv64
+	''    linux-loongarch64
 	''    freebsd-x86
 	''    freebsd-x86_64
 	''    freebsd-powerpc | freebsd-ppc
@@ -1047,6 +1053,8 @@ function fbIdentifyFbcArch( byref fbcarch as string ) as integer
 	select case( fbcarch )
 	case "x86_64", "amd64"
 		function = FB_CPUTYPE_X86_64
+	case "rv64gc"
+		function = FB_CPUTYPE_RISCV64
 	case else
 		function = -1
 	end select
@@ -1735,6 +1743,9 @@ function fbGetBackendValistType _
 			typedef = FB_CVA_LIST_BUILTIN_POINTER
 
 		case FB_CPUFAMILY_PPC64, FB_CPUFAMILY_PPC64LE
+			typedef = FB_CVA_LIST_BUILTIN_POINTER
+
+		case FB_CPUFAMILY_RISCV64, FB_CPUFAMILY_LOONGARCH64
 			typedef = FB_CVA_LIST_BUILTIN_POINTER
 
 		case else
