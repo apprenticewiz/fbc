@@ -868,6 +868,11 @@ private function hLinkFiles( ) as integer
 					ldcline += " -dynamic-linker /lib/ld-linux-armhf.so.3"
 				case FB_CPUFAMILY_AARCH64
 					ldcline += " -dynamic-linker /lib/ld-linux-aarch64.so.1"
+				case FB_CPUFAMILY_RISCV64
+					ldcline += " -dynamic-linker /lib/ld-linux-riscv64-lp64d.so.1"
+				case FB_CPUFAMILY_LOONGARCH64
+					'' LoongArch LP64D ABI interpreter (psABI), not /lib
+					ldcline += " -dynamic-linker /lib64/ld-linux-loongarch-lp64d.so.1"
 				end select
 			case FB_COMPTARGET_NETBSD
 				ldcline += " -dynamic-linker /usr/libexec/ld.elf_so"
@@ -1180,7 +1185,9 @@ private function hLinkFiles( ) as integer
 		if outtype = FB_OUTTYPE_EXECUTABLE OrElse outtype = FB_OUTTYPE_DYNAMICLIB Then
 			dim as long cpufamily = fbGetCpuFamily( )
 			if cpufamily = FB_CPUFAMILY_X86_64 OrElse cpufamily = FB_CPUFAMILY_AARCH64 OrElse _
-				cpuFamily = FB_CPUFAMILY_PPC64 OrElse cpufamily = FB_CPUFAMILY_PPC64LE Then
+				cpuFamily = FB_CPUFAMILY_PPC64 OrElse cpufamily = FB_CPUFAMILY_PPC64LE OrElse _
+				cpufamily = FB_CPUFAMILY_RISCV64 OrElse _
+				cpufamily = FB_CPUFAMILY_LOONGARCH64 Then
 				ldcline += " --eh-frame-hdr"
 			end if
 		end if
@@ -1520,7 +1527,9 @@ dim shared as FBGNUARCHINFO gnuarchmap(0 to ...) => _
 	(@"ppc64  "    , FB_DEFAULT_CPUTYPE_PPC64  ), _
 	(@"powerpc64"  , FB_DEFAULT_CPUTYPE_PPC64  ),  _
 	(@"ppc64le  "  , FB_DEFAULT_CPUTYPE_PPC64LE), _
-	(@"powerpc64le", FB_DEFAULT_CPUTYPE_PPC64LE)  _
+	(@"powerpc64le", FB_DEFAULT_CPUTYPE_PPC64LE), _
+	(@"riscv64"     , FB_DEFAULT_CPUTYPE_RISCV64), _
+	(@"loongarch64" , FB_DEFAULT_CPUTYPE_LOONGARCH64)  _
 }
 
 '' Identify OS (FB_COMPTARGET_*) and architecture (FB_CPUTYPE_*) in a GNU
@@ -3414,6 +3423,13 @@ private function hCompileStage2Module( byval module as FBCIOFILE ptr ) as intege
 		case FB_CPUFAMILY_PPC64, FB_CPUFAMILY_PPC64LE
 			ln += "-m64 "
 			ism64Target = True
+		case FB_CPUFAMILY_RISCV64
+			'' gcc selects 32/64-bit RISC-V via -march/-mabi, it has no -m64
+			ism64Target = True
+		case FB_CPUFAMILY_LOONGARCH64
+			'' gcc selects the LP64 ABI with -mabi, it has no -m64
+			ln += "-mabi=lp64d "
+			ism64Target = True
 		end select
 
 		if( fbGetOption( FB_COMPOPT_TARGET ) <> FB_COMPTARGET_JS ) then
@@ -3574,6 +3590,11 @@ private function hCompileStage2Module( byval module as FBCIOFILE ptr ) as intege
 			ln += "-mcpu=powerpc64 "
 		case FB_CPUFAMILY_PPC64LE
 			ln += "-mcpu=powerpc64le "
+		case FB_CPUFAMILY_RISCV64
+			ln += "-march=riscv64 -mattr=+m,+a,+f,+d,+c "
+		case FB_CPUFAMILY_LOONGARCH64
+			'' +d selects the LP64D hard-float ABI in llc
+			ln += "-march=loongarch64 -mattr=+d "
 		end select
 
 		if( fbGetOption( FB_COMPOPT_PIC ) ) then

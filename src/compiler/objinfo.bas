@@ -86,7 +86,7 @@
 ''    reads the currently loaded object file,
 ''    using either the COFF (Win32, DOS), ELF32/64 (Linux, *BSD) or
 ''    Mach-O (Darwin) format.
-''    ELF32 (linux-arm) or ELF64 (linux-aarch64)
+''    ELF32 (linux-arm) or ELF64 (linux-aarch64, linux-riscv64, linux-loongarch64)
 ''    looks for the .fbctinf section,
 ''    and if found, parses its content, and tells the frontend about the
 ''    found libraries etc. by using the callbacks.
@@ -192,6 +192,8 @@ const EM_ARM32 = &h28
 const EM_AARCH64 = &hb7
 const EM_PPC = &h14
 const EM_PPC64 = &h15
+const EM_RISCV = &hf3
+const EM_LOONGARCH = &h102
 
 '' ELF section headers
 type ELF32_SH field = 1
@@ -890,6 +892,12 @@ private sub hLoadFbctinfFromObj( )
 		case FB_CPUFAMILY_PPC
 			INFO( "reading powerpc32 ELF: " + parser.filename )
 			hLoadFbctinfFromELF32_H( EM_PPC )
+		case FB_CPUFAMILY_RISCV64
+			INFO( "reading riscv64 ELF: " + parser.filename )
+			hLoadFbctinfFromELF64_H( EM_RISCV )
+		case FB_CPUFAMILY_LOONGARCH64
+			INFO( "reading loongarch64 ELF: " + parser.filename )
+			hLoadFbctinfFromELF64_H( EM_LOONGARCH )
 		end select
 	elseif( fbTargetSupportsMachO( ) ) then
 		INFO( "reading Mach-O: " + parser.filename )
